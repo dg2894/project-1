@@ -55,11 +55,11 @@ const onRequest = (request, response) => {
       }
       break;
     case 'HEAD':
-      if (parsedUrl.pathname === '/getUsers') {
-        // if get users, send meta data back with etag
-        jsonHandler.getUsersMeta(request, response);
+      if (parsedUrl.pathname === '/getPosts') {
+        jsonHandler.getPostsMeta(request, response);
+      } else if (parsedUrl.pathname === '/getPrivatePosts') {
+        jsonHandler.getPrivatePostsMeta(request, response);
       } else {
-        // if not found send 404 without body
         jsonHandler.notFoundMeta(request, response);
       }
       break;

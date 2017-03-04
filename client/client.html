@@ -19,9 +19,7 @@
         content.appendChild(p);
       }
 
-      if (obj.privateBlog) {
-        writeBlogHTML(obj.privateBlog, content);
-      } else if (obj.blog) {
+      if (obj.blog) {
         writeBlogHTML(obj.blog, content);
       }
     };
@@ -92,21 +90,29 @@
       const method = userForm.querySelector('#methodSelect').value;
       const url = userForm.querySelector('#urlField').value;
 
+      if (url === '/getPrivatePosts') {
+        userForm.action = url;
+      }
+
       const xhr = new XMLHttpRequest();
 
       xhr.open(method, url);
       xhr.setRequestHeader('Accept', 'application/json');
 
-      if (method == 'get') {
-        xhr.onload = () => handleResponse(xhr, true);
-      } else {
-        xhr.onload = () => handleResponse(xhr, false);
+      if (url !=='/getPrivatePosts' || url === '/getPrivatePosts' && method === 'head') {
+        if (method == 'get') {
+          xhr.onload = () => handleResponse(xhr, true);
+        } else {
+          xhr.onload = () => handleResponse(xhr, false);
+        }
       }
 
       xhr.send();
 
-      e.preventDefault();
-      return false;
+      if (url !== '/getPrivatePosts' || url === '/getPrivatePosts' && method === 'head') {
+        e.preventDefault();
+        return false;
+      }
     };
 
     const sendPost = (e, blogForm) => {
