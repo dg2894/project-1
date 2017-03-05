@@ -3,7 +3,9 @@
 <head>
   <title>Our simple HTTP server</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
+  <link rel="stylesheet" type="text/css" href="/pikaday.css">
 
+  <script src="pikaday.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
 
@@ -15,8 +17,8 @@
       //if message in response, add to screen
       if (obj.message) {
         const p = document.createElement('p');
-        p.textContent = `Message: ${obj.message}`;
-        content.appendChild(p);
+        p.textContent = obj.message;
+        responseContent.appendChild(p);
       }
 
       if (obj.blog) {
@@ -29,13 +31,14 @@
       if (blog.entries) {
         for (let i = 0; i < blog.entries.length; i++) {
           html += "<div class='entry'>";
-          html += "<h3>" + blog.entries[i].title + "</h3>";
+          html += "<h3 class='post-title'>" + blog.entries[i].title + "</h3>";
+          html += "<p class='post-date'>" + blog.entries[i].date + "</p>";
           if (blog.entries[i].image) {
             html += "<img class='entry-img' src='" + blog.entries[i].image + "'/>";
           }
-          html += "<p>" + blog.entries[i].date + "</p>";
           html += "<p>" + blog.entries[i].entry + "</p>";
           html += "</div>";
+          html += "<div class='divider'></div>";
 
           content.innerHTML = html;
         }
@@ -54,50 +57,59 @@
       //check the status code
       switch(xhr.status) {
         case 200: //success
-          content.innerHTML = `<b>Success</b>`;
+          content.innerHTML = "";
+          responseContent.innerHTML = "";
+          console.log('Success');
           break;
         case 201: //created
-          content.innerHTML = '<b>Create</b>';
+          responseContent.innerHTML = '<b>Post saved</b>';
           break;
         case 204: //updated (no response back from server)
-          content.innerHTML = '<b>Updated (No Content)</b>';
+          responseContent.innerHTML = '<b>This post already exists</b>';
           return;
         case 304: //if not modified
-          content.innerHTML = '<b>Not Modified</b>';
+          responseContent.innerHTML = '<b>Not Modified</b>';
           break;
         case 400: //bad request
-          content.innerHTML = `<b>Bad Request</b>`;
+          responseContent.innerHTML = `<b>Bad Request</b>`;
           break;
         case 401:
-          content.innerHTML = '<b>Unauthorized</b>';
+          responseContent.innerHTML = "";
+          content.innerHTML = '<h1 class="sectionTitle">No secrets for you.</h1>';
           break;
         case 404: //if not found
-          content.innerHTML = `<b>Resource Not Found</b>`;
+          responseContent.innerHTML = `<b>Resource Not Found</b>`;
           break;
         default: //any other status code
-          content.innerHTML = `Error code not implemented by client.`;
+          responseContent.innerHTML = `Error code not implemented by client.`;
           break;
       }
 
       if (parseResponse) {
         parseJSON(xhr, content);
       } else {
-        console.log('received');
+        console.log('Received');
       }
     };
 
     const requestUpdate = (e, userForm) => {
       const method = userForm.querySelector('#methodSelect').value;
-      const url = userForm.querySelector('#urlField').value;
+      let url = userForm.querySelector('#urlField').value;
+      let acceptType = 'application/json';
 
-      if (url === '/getPrivatePosts') {
+      if (url === '/getPrivatePosts.html' && method === 'get') {
         userForm.action = url;
+        window.location.href = url;
+      } else if (url === '/getPrivatePosts.html' && method === 'head') {
+        userForm.action = '/getPrivatePosts';
+        url = '/getPrivatePosts';
       }
 
       const xhr = new XMLHttpRequest();
 
       xhr.open(method, url);
-      xhr.setRequestHeader('Accept', 'application/json');
+
+      xhr.setRequestHeader('Accept', acceptType);
 
       if (url !=='/getPrivatePosts' || url === '/getPrivatePosts' && method === 'head') {
         if (method == 'get') {
@@ -120,7 +132,7 @@
       const blogMethod = blogForm.getAttribute('method');
 
       const titleField = blogForm.querySelector('#titleField');
-      const dateField = blogForm.querySelector('#dateField');
+      const dateField = blogForm.querySelector('#datePicker');
       const imageField = blogForm.querySelector('#imageField');
       const entryField = blogForm.querySelector('#entryField');
       const privacy = blogForm.querySelector('#privacy');
@@ -160,34 +172,48 @@
   </script>
 </head>
 <body>
-  <section id="top">
+  <section id="addPost">
+    <h1 class="sectionTitle">Write a Post</h1>
     <form id="blogForm" action="/addPost" method="post">
-      <label for="title">Title: </label>
-      <input id="titleField" type="text" name="title" />
-      <label for="date">Date: </label>
-      <input id="dateField" type="date" name="date"/>
-      <label for="image">Post Image: </label>
-      <input id="imageField" type="url" name="postImage"/>
-      <textarea id="entryField" name="entry" form="blogForm" placeholder="Write entry here"></textarea>
-      <select id='privacy'>
-        <option value='public'>Public</option>
-        <option value='private'>Private</option>
-      </select>
-      <input type="submit" value="Add Post" />
-    </form>
-    <form id="userForm" action="/getPosts" method="get">
-      <select id='urlField'>
-        <option value='/getPosts'>Public Posts</option>
-        <option value='/getPrivatePosts'>Secrets</option>
-      </select>
-      <select id="methodSelect">
-        <option value="get">GET</option>
-        <option value="head">HEAD</option>
-      </select>
-      <input type="submit" value="Get Posts" />
+      <input id="titleField" placeholder="Title" type="text" name="title" />
+      <input id="datePicker" placeholder="Date" type="text" name="date" required/>
+      <input id="imageField" placeholder="Image URL" type="url" name="postImage"/>
+      <textarea id="entryField" name="entry" form="blogForm" placeholder="What's on your mind?" required></textarea>
+      <div class="userOptions">
+        <select id="privacy">
+          <option value='public'>Public</option>
+          <option value='private'>Private</option>
+        </select>
+        <input class ="submitButton" type="submit" value="Add Post" />
+      </div>
+      <section id="responseContent"></section>
     </form>
   </section>
-  <section id="content">
-  </section>
+
+
+<section id="seePosts">
+    <h1 class="sectionTitle">Your Posts</h1>
+    <div class="userOptions">
+      <form id="userForm" action="/getPosts" method="get">
+        <select id='urlField'>
+          <option value='/getPosts'>Posts</option>
+          <option value='/getPrivatePosts.html'>Secrets</option>
+        </select>
+        <select id="methodSelect">
+          <option value="get">GET</option>
+          <option value="head">HEAD</option>
+        </select>
+        <input class ="submitButton" type="submit" value="Go" />
+      </form>
+    </div>
+    <div class="divider"></div>
+
+    <section id="content"></section>
+
+</section>
 </body>
+
+<script>
+    const picker = new Pikaday({ field: document.getElementById('datePicker') });
+</script>
 </html>

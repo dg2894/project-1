@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css?family=Karla:400,400i,700,700i');
+
+* { font-family: 'Karla', Arial, sans-serif; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #efeff4;
+}
+
+#addPost, #seePosts, #content {
+  width: 50%;
+  margin: 0 auto;
+}
+
+#addPost, #seePosts {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 50px;
+  margin-top: 100px;
+  background-color: #fff;
+  transition: height 2s;
+}
+
+input:focus {
+  outline: none;
+}
+
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  text-transform: uppercase;
+}
+::-moz-placeholder { /* Firefox 19+ */
+ text-transform: uppercase;
+}
+:-ms-input-placeholder { /* IE 10+ */
+   text-transform: uppercase;
+}
+:-moz-placeholder { /* Firefox 18- */
+  text-transform: uppercase;
+}
+
+#titleField,
+#datePicker,
+#imageField {
+  display: block;
+  margin: 10px 0;
+  min-width: 200px;
+  padding: 5px 7px;
+  border: none;
+  border-bottom: 2px solid #ccc;
+}
+
+#entryField {
+  padding: 5px 7px;
+  box-sizing: border-box;
+  margin: 20px 0px;
+}
+
+#datePicker {
+  text-transform: uppercase;
+}
+
+#addPost #blogForm textArea {
+  display: block;
+  width: 100%;
+  height: 100px;
+  resize: vertical;
+}
+
+input[type=date]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    display: none;
+}
+
+::-webkit-clear-button
+{
+    display: none; /* Hide the button */
+    -webkit-appearance: none; /* turn off default browser styling */
+}
+
+#privacy, #methodSelect, #urlField {
+  padding: 5px 7px;
+}
+
+.submitButton {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.basicButton {
+  text-decoration: none;
+  color: #000;
+}
+
+#content {
+  margin-top: 100px;
+  font-size: 2em;
+  text-align: center;
+}
+
+

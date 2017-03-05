@@ -1,4 +1,7 @@
 const crypto = require('crypto');
+const fs = require('fs');
+
+const pikaday = fs.readFileSync(`${__dirname}/../node_modules/pikaday/pikaday.js`);
 
 const blog = {};
 const privateBlog = {};
@@ -6,24 +9,30 @@ const privateBlog = {};
 let etag = crypto.createHash('sha1').update(JSON.stringify(blog));
 let digest = etag.digest('hex');
 
-const writeHTML = (object) => {
-  let html = '';
-  if (object.entries) {
-    for (let i = 0; i < object.entries.length; i++) {
-      html += "<div class='entry'>";
-      html += `<h3>${object.entries[i].title}</h3>`;
-      if (object.entries[i].image) {
-        html += `<img class='entry-img' src='${object.entries[i].image}'/>`;
-      }
-      html += `<p>${object.entries[i].date}</p>`;
-      html += `<p>${object.entries[i].entry}</p>`;
-      html += '</div>';
-      return html;
-    }
-  }
-  html += '<p>There are no entires.</p>';
-  return html;
+const getPikaday = (request, response) => {
+  response.writeHead(200, { 'Content-Type': 'text/javascript' });
+  response.write(pikaday);
+  response.end();
 };
+
+// const writeHTML = (object) => {
+//   let html = '';
+//   if (object.entries) {
+//     for (let i = 0; i < object.entries.length; i++) {
+//       html += "<div class='entry'>";
+//       html += `<h3>${object.entries[i].title}</h3>`;
+//       if (object.entries[i].image) {
+//         html += `<img class='entry-img' src='${object.entries[i].image}'/>`;
+//       }
+//       html += `<p>${object.entries[i].date}</p>`;
+//       html += `<p>${object.entries[i].entry}</p>`;
+//       html += '</div>';
+//       return html;
+//     }
+//   }
+//   html += '<p>There are no entires.</p>';
+//   return html;
+// };
 
 const respondJSON = (request, response, status, object) => {
   const headers = {
@@ -37,25 +46,25 @@ const respondJSON = (request, response, status, object) => {
   response.end();
 };
 
-const respondHTML = (request, response, status, object) => {
-  const headers = {
-    'Content-Type': 'text/html',
-    etag: digest,
-  };
+// const respondHTML = (request, response, status, object) => {
+//   const headers = {
+//     'Content-Type': 'text/html',
+//     etag: digest,
+//   };
 
-  let html = '';
+//   let html = '';
 
-  if (object.message) {
-    html = `<b>${object.title}</b>`;
-    html += `<p>${object.message}</p>`;
-  } else {
-    html = writeHTML(object.privateBlog, html);
-  }
+//   if (object.message) {
+//     html = `<b>${object.title}</b>`;
+//     html += `<p>${object.message}</p>`;
+//   } else {
+//     html = writeHTML(object.privateBlog, html);
+//   }
 
-  response.writeHead(status, headers);
-  response.write(html);
-  response.end();
-};
+//   response.writeHead(status, headers);
+//   response.write(html);
+//   response.end();
+// };
 
 const respondJSONMeta = (request, response, status) => {
   const headers = {
@@ -69,17 +78,16 @@ const respondJSONMeta = (request, response, status) => {
 
 const getPosts = (request, response, postType, params) => {
   let responseJSON = { blog };
-
   if (postType === 'private') {
-    if (!params.authorized || params.authorized !== 'true') {
+    if (!params.admin || params.admin !== true) {
       responseJSON = {
         title: 'Unauthorized',
-        message: 'Missing authorized query parameter set to true',
+        message: 'Missing admin query parameter set to true',
       };
-      return respondHTML(request, response, 401, responseJSON);
+      return respondJSON(request, response, 401, responseJSON);
     }
     responseJSON = { privateBlog };
-    return respondHTML(request, response, 200, responseJSON);
+    return respondJSON(request, response, 200, responseJSON);
   }
 
   if (request.headers['if-none-match'] === digest) {
@@ -101,7 +109,6 @@ const getPrivatePostsMeta = (request, response) => {
   if (request.headers['if-none-match'] === digest) {
     return respondJSONMeta(request, response, 304);
   }
-
   return respondJSONMeta(request, response, 401);
 };
 
@@ -160,7 +167,7 @@ const addPost = (request, response, post) => {
   }
 
   if (responseCode === 201) {
-    responseJSON.message = 'Created Successfully';
+    responseJSON.message = 'See posts below';
 
     etag = crypto.createHash('sha1').update(JSON.stringify(blog));
     digest = etag.digest('hex');
@@ -186,6 +193,7 @@ const notFoundMeta = (request, response) => {
 };
 
 module.exports = {
+  getPikaday,
   getPosts,
   getPostsMeta,
   getPrivatePostsMeta,

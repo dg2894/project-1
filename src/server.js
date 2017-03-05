@@ -34,7 +34,6 @@ const handlePost = (request, response, parsedUrl) => {
 
 const onRequest = (request, response) => {
   const parsedUrl = url.parse(request.url);
-  const params = query.parse(parsedUrl.query);
 
   switch (request.method) {
     case 'GET':
@@ -44,10 +43,17 @@ const onRequest = (request, response) => {
       } else if (parsedUrl.pathname === '/style.css') {
         // if stylesheet, send stylesheet
         htmlHandler.getCSS(request, response);
+      } else if (parsedUrl.pathname === '/pikaday.js') {
+        jsonHandler.getPikaday(request, response);
+      } else if (parsedUrl.pathname === '/pikaday.css') {
+        htmlHandler.getPikadayCSS(request, response);
       } else if (parsedUrl.pathname === '/getPosts') {
         // if get users, send user object back
         jsonHandler.getPosts(request, response, 'public');
+      } else if (parsedUrl.pathname === '/getPrivatePosts.html') {
+        htmlHandler.getSecrets(request, response);
       } else if (parsedUrl.pathname === '/getPrivatePosts') {
+        const params = { admin: true };
         jsonHandler.getPosts(request, response, 'private', params);
       } else {
         // if not found, send 404 message
