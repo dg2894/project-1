@@ -9,12 +9,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
 
-    //function to parse our response
     const parseJSON = (xhr, content) => {
-      //parse response (obj will be empty in a 204 updated)
       const obj = JSON.parse(xhr.response);
 
-      //if message in response, add to screen
       if (obj.message) {
         const p = document.createElement('p');
         p.textContent = obj.message;
@@ -51,36 +48,34 @@
 
       console.log(xhr.getResponseHeader ('etag'));
 
-      //Check network tag for real status code
       console.log(xhr.status);
 
-      //check the status code
       switch(xhr.status) {
-        case 200: //success
+        case 200:
           content.innerHTML = "";
           responseContent.innerHTML = "";
           console.log('Success');
           break;
-        case 201: //created
+        case 201:
           responseContent.innerHTML = '<b>Post saved</b>';
           break;
-        case 204: //updated (no response back from server)
+        case 204:
           responseContent.innerHTML = '<b>This post already exists</b>';
           return;
-        case 304: //if not modified
+        case 304:
           responseContent.innerHTML = '<b>Not Modified</b>';
           break;
-        case 400: //bad request
+        case 400:
           responseContent.innerHTML = `<b>Bad Request</b>`;
           break;
         case 401:
           responseContent.innerHTML = "";
           content.innerHTML = '<h1 class="sectionTitle">No secrets for you.</h1>';
           break;
-        case 404: //if not found
+        case 404:
           responseContent.innerHTML = `<b>Resource Not Found</b>`;
           break;
-        default: //any other status code
+        default:
           responseContent.innerHTML = `Error code not implemented by client.`;
           break;
       }
@@ -155,15 +150,12 @@
     };
 
     const init = () => {
-      //grab form
       const blogForm = document.querySelector('#blogForm');
       const userForm = document.querySelector('#userForm');
 
-      //create handler
       const addPost = (e) => sendPost(e, blogForm);
       const getPosts = (e) => requestUpdate(e, userForm);
 
-      //attach submit event (for clicking submit or hitting enter)
       blogForm.addEventListener('submit', addPost);
       userForm.addEventListener('submit', getPosts);
     };

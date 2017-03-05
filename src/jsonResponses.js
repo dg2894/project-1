@@ -15,56 +15,16 @@ const getPikaday = (request, response) => {
   response.end();
 };
 
-// const writeHTML = (object) => {
-//   let html = '';
-//   if (object.entries) {
-//     for (let i = 0; i < object.entries.length; i++) {
-//       html += "<div class='entry'>";
-//       html += `<h3>${object.entries[i].title}</h3>`;
-//       if (object.entries[i].image) {
-//         html += `<img class='entry-img' src='${object.entries[i].image}'/>`;
-//       }
-//       html += `<p>${object.entries[i].date}</p>`;
-//       html += `<p>${object.entries[i].entry}</p>`;
-//       html += '</div>';
-//       return html;
-//     }
-//   }
-//   html += '<p>There are no entires.</p>';
-//   return html;
-// };
-
 const respondJSON = (request, response, status, object) => {
   const headers = {
     'Content-Type': 'application/json',
     etag: digest,
   };
 
-  // send response with json object
   response.writeHead(status, headers);
   response.write(JSON.stringify(object));
   response.end();
 };
-
-// const respondHTML = (request, response, status, object) => {
-//   const headers = {
-//     'Content-Type': 'text/html',
-//     etag: digest,
-//   };
-
-//   let html = '';
-
-//   if (object.message) {
-//     html = `<b>${object.title}</b>`;
-//     html += `<p>${object.message}</p>`;
-//   } else {
-//     html = writeHTML(object.privateBlog, html);
-//   }
-
-//   response.writeHead(status, headers);
-//   response.write(html);
-//   response.end();
-// };
 
 const respondJSONMeta = (request, response, status) => {
   const headers = {

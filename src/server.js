@@ -38,17 +38,14 @@ const onRequest = (request, response) => {
   switch (request.method) {
     case 'GET':
       if (parsedUrl.pathname === '/') {
-        // if homepage, send index
         htmlHandler.getIndex(request, response);
       } else if (parsedUrl.pathname === '/style.css') {
-        // if stylesheet, send stylesheet
         htmlHandler.getCSS(request, response);
       } else if (parsedUrl.pathname === '/pikaday.js') {
         jsonHandler.getPikaday(request, response);
       } else if (parsedUrl.pathname === '/pikaday.css') {
         htmlHandler.getPikadayCSS(request, response);
       } else if (parsedUrl.pathname === '/getPosts') {
-        // if get users, send user object back
         jsonHandler.getPosts(request, response, 'public');
       } else if (parsedUrl.pathname === '/getPrivatePosts.html') {
         htmlHandler.getSecrets(request, response);
@@ -56,7 +53,6 @@ const onRequest = (request, response) => {
         const params = { admin: true };
         jsonHandler.getPosts(request, response, 'private', params);
       } else {
-        // if not found, send 404 message
         jsonHandler.notFound(request, response);
       }
       break;
